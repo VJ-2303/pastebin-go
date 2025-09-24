@@ -3,6 +3,8 @@ package main
 
 import (
 	"bytes"
+	"crypto/rand"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 	"runtime/debug"
@@ -45,4 +47,14 @@ func (app *application) render(w http.ResponseWriter, status int, page string, d
 	}
 	w.WriteHeader(status)
 	buf.WriteTo(w)
+}
+
+func (app *application) generateRandomString(n int) (string, error) {
+
+	b := make([]byte, 8)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	return base64.URLEncoding.EncodeToString(b), nil
 }

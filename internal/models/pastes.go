@@ -20,14 +20,14 @@ type PasteModel struct {
 	DB *sql.DB
 }
 
-func (m *PasteModel) Insert(uniqueString, content string, expires time.Time) (int, error) {
-	query := `INSERT INTO pastes (unique_string, content, expires_at)
-			  VALUES ($1,$2,$3)
+func (m *PasteModel) Insert(uniqueString, content string, passwordHash []byte, expires time.Time) (int, error) {
+	query := `INSERT INTO pastes (unique_string, content, password_hash,expires_at)
+			  VALUES ($1,$2,$3,$4)
 			  RETURNING id`
 
 	var id int
 
-	err := m.DB.QueryRow(query, uniqueString, content, expires).Scan(&id)
+	err := m.DB.QueryRow(query, uniqueString, content, passwordHash, expires).Scan(&id)
 	if err != nil {
 		return 0, nil
 	}

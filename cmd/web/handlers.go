@@ -9,13 +9,14 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/vj-2303/pastebin-go/internal/models"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "Hello from Pastebin")
 }
 func (app *application) pasteCreateForm(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Displaying the form for creating a new paste...")
+	app.render(w, http.StatusOK, "create.page.html", nil)
 }
 
 func (app *application) pasteView(w http.ResponseWriter, r *http.Request) {
@@ -42,12 +43,41 @@ func (app *application) pasteView(w http.ResponseWriter, r *http.Request) {
 }
 
 func (app *application) pasteCreatePost(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
 
-	uniqueString := "adcdef"
-	content := "This is the content of the new paste"
-	expires := time.Now().Add(24 * time.Hour)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+	content := r.PostForm.Get("content")
+	expiresStr := r.PostForm.Get("expires")
+	password := r.PostForm.Get("password")
 
-	id, err := app.pastes.Insert(uniqueString, content, expires)
+	if content == "" {
+		fmt.Fprintln(w, "Content cannot be blank.")
+		return
+	}
+	expires, err := strconv.Atoi(expiresStr)
+	if err != nil || (expires != 4 && expires != 24) {
+		fmt.Fprintln(w, "Invalid expiry value.")
+		return
+	}
+	uniqueString, err := app.generateRandomString(8)
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
+	var passwordHash []byte
+	if password != "" {
+		passwordHash, err = bcrypt.GenerateFromPassword([]byte(passwordHash), 12)
+		if err != nil {
+			app.serverError(w, err)
+			return
+		}
+	}
+	expiryTime := time.Now().Add(time.Duration(expires) * time.Hour)
+
+	id, err := app.pastes.Insert(uniqueString, content, passwordHash, expiryTime)
 	if err != nil {
 		app.serverError(w, err)
 		return
