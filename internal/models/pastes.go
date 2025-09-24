@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+var ErrNoRecord = errors.New("models: no matching record found")
+
 type Paste struct {
 	ID           int
 	UniqueString string
@@ -50,7 +52,7 @@ func (m *PasteModel) Get(id int) (*Paste, error) {
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
+			return nil, ErrNoRecord
 		}
 		return nil, err
 	}

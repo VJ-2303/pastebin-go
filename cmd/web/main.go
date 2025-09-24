@@ -19,7 +19,7 @@ type config struct {
 type application struct {
 	infoLog  *log.Logger
 	errorLog *log.Logger
-	pastes   *models.PasteModels
+	pastes   *models.PasteModel
 }
 
 func main() {
