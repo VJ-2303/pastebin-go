@@ -35,7 +35,10 @@ func (app *application) pasteView(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	fmt.Fprintf(w, "%+v\n", paste)
+	data := &templateData{
+		Paste: paste,
+	}
+	app.render(w, http.StatusOK, "view.page.html", data)
 }
 
 func (app *application) pasteCreatePost(w http.ResponseWriter, r *http.Request) {

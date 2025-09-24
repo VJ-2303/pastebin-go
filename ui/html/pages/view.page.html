@@ -1,0 +1,12 @@
+{{define "main"}} {{with .Paste}}
+<div class="paste">
+    <div class="metadata">
+        <strong>Title:</strong> {{.UniqueString}}<br />
+        <strong>Created:</strong> {{.CreatedAt}}<br />
+        <strong>Expires:</strong> {{.ExpiresAt}}
+    </div>
+    <pre><code>{{.Content}}</code></pre>
+</div>
+{{else}}
+<p>No paste found.</p>
+{{end}} {{end}}
