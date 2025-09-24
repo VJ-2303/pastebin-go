@@ -33,7 +33,7 @@ func main() {
 	srv := &http.Server{
 		Addr:     cfg.addr,
 		ErrorLog: errorLog,
-		Handler:  nil,
+		Handler:  app.routes(),
 	}
 
 	infoLog.Printf("Starting server on %s", cfg.addr)
