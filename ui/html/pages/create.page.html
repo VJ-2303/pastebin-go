@@ -1,0 +1,20 @@
+{{define "main"}}
+<form action="/paste/create" method="POST">
+    <div>
+        <label>Content:</label>
+        <textarea name="content"></textarea>
+    </div>
+    <div>
+        <label>Delete in:</label>
+        <input type="radio" name="expires" value="24" checked /> 24 Hours
+        <input type="radio" name="expires" value="4" /> 4 Hours
+    </div>
+    <div>
+        <label>Optional Password:</label>
+        <input type="password" name="password" />
+    </div>
+    <div>
+        <input type="submit" value="Create Paste" />
+    </div>
+</form>
+{{end}}
