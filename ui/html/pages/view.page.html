@@ -1,12 +1,21 @@
-{{define "main"}} {{with .Paste}}
+{{define "main"}}
+{{if .PasswordForm}}
+<h2>Protected Paste</h2>
+{{if .ViewError}}<p style="color:red;">{{.ViewError}}</p>{{end}}
+<form method="POST" action="/p/{{.UniqueString}}">
+    <label>Password: <input type="password" name="password" autofocus></label>
+    <input type="submit" value="View Paste">
+</form>
+{{else if .Paste}}
 <div class="paste">
     <div class="metadata">
-        <strong>Title:</strong> {{.UniqueString}}<br />
-        <strong>Created:</strong> {{.CreatedAt}}<br />
-        <strong>Expires:</strong> {{.ExpiresAt}}
+        <strong>Identifier:</strong> {{.Paste.UniqueString}}<br />
+        <strong>Created:</strong> {{.Paste.CreatedAt}}<br />
+        <strong>Expires:</strong> {{.Paste.ExpiresAt}}
     </div>
-    <pre><code>{{.Content}}</code></pre>
+    <pre><code>{{.Paste.Content}}</code></pre>
 </div>
 {{else}}
 <p>No paste found.</p>
-{{end}} {{end}}
+{{end}}
+{{end}}

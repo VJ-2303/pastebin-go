@@ -1,4 +1,3 @@
-// cmd/web/helpers.go
 package main
 
 import (
@@ -10,8 +9,6 @@ import (
 	"runtime/debug"
 )
 
-// serverError helper writes an error message and stack trace to the errorLog,
-// then sends a generic 500 Internal Server Error response to the user.
 func (app *application) serverError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
 	app.errorLog.Output(2, trace)
@@ -19,14 +16,10 @@ func (app *application) serverError(w http.ResponseWriter, err error) {
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
 
-// clientError helper sends a specific status code and corresponding description
-// to the user. We'll use this for errors like 400 "Bad Request".
 func (app *application) clientError(w http.ResponseWriter, status int) {
 	http.Error(w, http.StatusText(status), status)
 }
 
-// notFound is a convenience wrapper around clientError which sends a
-// 404 Not Found response to the user.
 func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
 }
@@ -50,11 +43,13 @@ func (app *application) render(w http.ResponseWriter, status int, page string, d
 }
 
 func (app *application) generateRandomString(n int) (string, error) {
-
-	b := make([]byte, 8)
-	_, err := rand.Read(b)
-	if err != nil {
+	if n <= 0 {
+		n = 8
+	}
+	b := make([]byte, n)
+	if _, err := rand.Read(b); err != nil {
 		return "", err
 	}
-	return base64.URLEncoding.EncodeToString(b), nil
+	s := base64.RawURLEncoding.EncodeToString(b)
+	return s, nil
 }

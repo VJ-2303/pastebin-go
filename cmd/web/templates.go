@@ -8,7 +8,11 @@ import (
 )
 
 type templateData struct {
-	Paste *models.Paste
+	Paste        *models.Paste
+	PasswordForm bool
+	ViewError    string
+	UniqueString string
+	Pastes       []*models.Paste
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {

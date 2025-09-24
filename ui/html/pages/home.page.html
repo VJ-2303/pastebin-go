@@ -1,0 +1,17 @@
+{{define "main"}}
+<h2>Recent Pastes</h2>
+{{if .Pastes}}
+<ul>
+{{range .Pastes}}
+    <li>
+        <a href="/p/{{.UniqueString}}">{{.UniqueString}}</a>
+        {{if .PasswordHash}}🔒{{end}}
+        <small>expires {{.ExpiresAt}}</small>
+    </li>
+{{end}}
+</ul>
+{{else}}
+<p>No pastes yet. <a href="/paste/create">Create one</a>.</p>
+{{end}}
+<p><a href="/paste/create">Create a new paste</a></p>
+{{end}}
