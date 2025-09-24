@@ -13,6 +13,8 @@ type templateData struct {
 	ViewError    string
 	UniqueString string
 	Pastes       []*models.Paste
+	SearchQuery  string
+	SearchError  string
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {

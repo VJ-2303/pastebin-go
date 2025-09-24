@@ -13,6 +13,26 @@ import (
 )
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query().Get("q")
+	if q != "" {
+		paste, err := app.pastes.GetByUnique(q)
+		if err != nil {
+			if errors.Is(err, models.ErrNoRecord) {
+				pastes, lerr := app.pastes.Latest(20)
+				if lerr != nil {
+					app.serverError(w, lerr)
+					return
+				}
+				data := &templateData{Pastes: pastes, SearchQuery: q, SearchError: "No paste found for that identifier"}
+				app.render(w, http.StatusOK, "home.page.html", data)
+				return
+			}
+			app.serverError(w, err)
+			return
+		}
+		http.Redirect(w, r, fmt.Sprintf("/p/%s", paste.UniqueString), http.StatusSeeOther)
+		return
+	}
 	pastes, err := app.pastes.Latest(20)
 	if err != nil {
 		app.serverError(w, err)
@@ -29,7 +49,6 @@ func (app *application) pasteView(w http.ResponseWriter, r *http.Request) {
 	params := httprouter.ParamsFromContext(r.Context())
 	idParam := params.ByName("slug")
 
-	// Allow both numeric id and unique string
 	var paste *models.Paste
 	var err error
 	if id, convErr := strconv.Atoi(idParam); convErr == nil {
@@ -45,10 +64,8 @@ func (app *application) pasteView(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-
-	// If paste has password and not yet authorized
 	if len(paste.PasswordHash) > 0 {
-		if r.Method == http.MethodPost { // password submission
+		if r.Method == http.MethodPost {
 			if err := r.ParseForm(); err != nil {
 				app.clientError(w, http.StatusBadRequest)
 				return
@@ -59,7 +76,7 @@ func (app *application) pasteView(w http.ResponseWriter, r *http.Request) {
 				app.render(w, http.StatusUnauthorized, "view.page.html", data)
 				return
 			}
-		} else { // show password form
+		} else {
 			data := &templateData{PasswordForm: true, UniqueString: paste.UniqueString}
 			app.render(w, http.StatusOK, "view.page.html", data)
 			return
@@ -130,6 +147,5 @@ func (app *application) pasteCreatePost(w http.ResponseWriter, r *http.Request) 
 		app.serverError(w, err)
 		return
 	}
-	// Redirect using unique string for nicer URL (ignore numeric id in path now)
 	http.Redirect(w, r, fmt.Sprintf("/p/%s", uniqueString), http.StatusSeeOther)
 }

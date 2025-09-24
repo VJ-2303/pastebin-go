@@ -1,4 +1,9 @@
 {{define "main"}}
+<form method="GET" action="/" style="margin-bottom:1rem; display:flex; gap:.5rem;">
+    <input type="text" name="q" placeholder="Enter paste identifier" value="{{.SearchQuery}}" style="flex:1;" />
+    <input type="submit" value="Search" />
+</form>
+{{if .SearchError}}<p style="color:red;">{{.SearchError}}</p>{{end}}
 <h2>Recent Pastes</h2>
 {{if .Pastes}}
 <ul>
